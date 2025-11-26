@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Content Editor - TechVision</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .editor-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .editor-header {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .editor-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .editor-header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .editor-content {
+      padding: 40px;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-section label {
+      display: block;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .section-select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .section-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .editor-wrapper {
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .html-editor {
+      width: 100%;
+      min-height: 400px;
+      padding: 20px;
+      border: 2px solid #e0e6ed;
+      border-radius: 10px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .html-editor:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .save-btn {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+    }
+
+    .save-btn:active {
+      transform: translateY(0);
+    }
+
+    .save-btn:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+    }
+
+    .back-btn {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .success-message {
+      background: #d5f4e6;
+      color: #27ae60;
+      border: 1px solid #27ae60;
+    }
+
+    .error-message {
+      background: #fdeaea;
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .preview-section {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border: 1px solid #e0e6ed;
+    }
+
+    .preview-title {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+    }
+
+    .preview-content {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e0e6ed;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      .editor-content {
+        padding: 20px;
+      }
+      
+      .editor-header {
+        padding: 20px;
+      }
+      
+      .editor-header h1 {
+        font-size: 2rem;
+      }
+      
+      .editor-actions {
+        justify-content: center;
+      }
+      
+      .save-btn, .logout-btn, .back-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="editor-container">
+    <div class="editor-header">
+      <h1>🛠️ Content Editor</h1>
+      <p>Edit and manage your website content with ease</p>
+    </div>
+
+    <div class="editor-content">
+      <div id="editorMsg" class="message hidden"></div>
+
+      <div class="form-section">
+        <label for="sectionSelect">Select Page to Edit:</label>
+        <select id="sectionSelect" class="section-select">
+          <option value="dashboard">📊 Dashboard</option>
+          <option value="about">ℹ️ About Us</option>
+          <option value="services">⚙️ Services</option>
+          <option value="portfolio">💼 Portfolio</option>
+          <option value="contact">📞 Contact</option>
+          <option value="blog">📝 Blog</option>
+          <option value="adminPanel">👑 Admin Panel</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label for="htmlEditor">HTML Content:</label>
+        <div class="editor-wrapper">
+          <textarea 
+            id="htmlEditor" 
+            class="html-editor" 
+            placeholder="Loading content... Please wait."
+            rows="20"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="editor-actions">
+        <button id="saveBtn" class="save-btn">
+          💾 Save Changes
+        </button>
+        
+        <a href="index.html" class="back-btn">
+          ← Back to Dashboard
+        </a>
+        
+        <button onclick="logout()" class="logout-btn">
+          🚪 Logout
+        </button>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-title">Live Preview:</div>
+        <div id="previewContent" class="preview-content">
+          Select a section and start editing to see the preview...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sectionSelect = document.getElementById('sectionSelect');
+      const htmlEditor = document.getElementById('htmlEditor');
+      const saveBtn = document.getElementById('saveBtn');
+      const msgDiv = document.getElementById('editorMsg');
+      const previewDiv = document.getElementById('previewContent');
+      const API_BASE = 'http://localhost:5000/api';
+
+      let jwt = sessionStorage.getItem('jwt');
+      let currentUser = null;
+
+      try {
+        currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+      } catch (e) {
+        console.error('Error parsing current user:', e);
+      }
+
+      if (!jwt || !currentUser?.isAdmin) {
+        alert('Access denied. Admin login required.');
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      async function loadSection(id) {
+        try {
+          htmlEditor.placeholder = "Loading content...";
+          htmlEditor.disabled = true;
+          saveBtn.disabled = true;
+          
+          const res = await fetch(`${API_BASE}/content/${encodeURIComponent(id)}`);
+          
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          
+          const data = await res.json();
+          
+          if (data.success) {
+            htmlEditor.value = data.html || '';
+            showMessage(`✅ Loaded content for "${getSectionName(id)}"`, false);
+          } else {
+            throw new Error(data.message || 'Failed to load content');
+          }
+          
+          htmlEditor.placeholder = "Enter HTML content here...";
+          htmlEditor.disabled = false;
+          saveBtn.disabled = false;
+          
+          updatePreview();
+        } catch (err) {
+          console.error('Load error:', err);
+          showMessage(`❌ Failed to load content: ${err.message}`, true);
+          htmlEditor.disabled = false;
+          saveBtn.disabled = false;
+          htmlEditor.placeholder = "Failed to load content. You can still edit here...";
+          htmlEditor.value = '<!-- Failed to load existing content. Start editing here... -->';
+        }
+      }
+
+      async function saveSection(id) {
+        const html = htmlEditor.value.trim();
+        
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwt}`
+        };
+
+        try {
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = '<div class="loading"></div> Saving...';
+          
+          const res = await fetch(`${API_BASE}/content/${encodeURIComponent(id)}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ html })
+          });
+
+          const data = await res.json();
+          
+          if (!res.ok) {
+            throw new Error(data.message || `HTTP ${res.status}: Save failed`);
+          }
+          
+          if (data.success) {
+            showMessage(`✅ Changes saved successfully for "${getSectionName(id)}"!`, false);
+            updatePreview();
+          } else {
+            throw new Error(data.message || 'Save failed');
+          }
+        } catch (err) {
+          console.error('Save error:', err);
+          showMessage(`❌ ${err.message || 'Save failed. Please try again.'}`, true);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '💾 Save Changes';
+        }
+      }
+
+      function getSectionName(id) {
+        const names = {
+          dashboard: 'Dashboard',
+          about: 'About Us',
+          services: 'Services',
+          portfolio: 'Portfolio',
+          contact: 'Contact',
+          blog: 'Blog',
+          adminPanel: 'Admin Panel'
+        };
+        return names[id] || id;
+      }
+
+      function updatePreview() {
+        const html = htmlEditor.value.trim();
+        if (html) {
+          previewDiv.innerHTML = html;
+        } else {
+          previewDiv.innerHTML = 'No content to preview...';
+        }
+      }
+
+      function showMessage(msg, isError = false) {
+        msgDiv.textContent = msg;
+        msgDiv.className = isError ? 'message error-message' : 'message success-message';
+        msgDiv.style.display = 'block';
+        
+        setTimeout(() => {
+          msgDiv.style.display = 'none';
+        }, 5000);
+      }
+
+      sectionSelect.addEventListener('change', () => {
+        loadSection(sectionSelect.value);
+      });
+
+      saveBtn.addEventListener('click', () => {
+        saveSection(sectionSelect.value);
+      });
+
+      htmlEditor.addEventListener('input', () => {
+        updatePreview();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+          e.preventDefault();
+          saveSection(sectionSelect.value);
+        }
+      });
+
+      window.logout = function() {
+        if (confirm('Are you sure you want to logout?')) {
+          sessionStorage.removeItem('jwt');
+          sessionStorage.removeItem('currentUser');
+          window.location.href = 'admin.html';
+        }
+      };
+
+      loadSection(sectionSelect.value);
+    });
+  </script>
+</body>
+</html>

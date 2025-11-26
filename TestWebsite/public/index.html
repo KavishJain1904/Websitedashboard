@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechVision Solutions - Secure Portal</title>
+
+    <!-- Google Analytics 4 Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C230G3H2P6"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-C230G3H2P6');
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="auth-container" id="authContainer">
+        <div class="auth-card">
+            <div class="auth-logo">🔐 TechVision</div>
+            <div class="auth-title">Welcome Back</div>
+            <div class="auth-subtitle">Please sign in to access your dashboard</div>
+
+            <div id="errorMessage" class="error-message hidden"></div>
+            <div id="successMessage" class="success-message hidden"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="user_email_login" required
+                        placeholder="Enter your email address" autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="user_password_login" required
+                        placeholder="Enter your password" autocomplete="new-password" />
+                </div>
+
+                <button type="submit" class="auth-button" id="loginButton">
+                    Sign In
+                </button>
+
+                <div class="auth-links">
+                    <a href="#" class="auth-link" onclick="showSignup()">Create Account</a>
+                    <a href="#" class="auth-link" onclick="showForgotPassword()">Forgot Password?</a>
+                    <a href="admin.html" class="auth-link">Admin Login</a>
+                    <a href="#" class="auth-link" onclick="continueAsGuest()">← Continue as Guest</a>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="hidden" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" name="user_fullname_signup" required
+                        placeholder="Enter your full name" autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" name="user_email_signup" required
+                        placeholder="Enter your email address" autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" name="user_password_signup" required
+                        placeholder="Create a password" autocomplete="new-password" />
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="user_password_confirm" required
+                        placeholder="Confirm your password" autocomplete="new-password" />
+                </div>
+
+                <button type="submit" class="auth-button" id="signupButton">
+                    Create Account
+                </button>
+
+                <div class="auth-links">
+                    <a href="#" class="auth-link" onclick="showLogin()">Already have an account?</a>
+                </div>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form id="forgotPasswordForm" class="hidden" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="forgotEmail">Email Address</label>
+                    <input type="email" id="forgotEmail" name="user_email_forgot" required
+                        placeholder="Enter your email address" autocomplete="off" />
+                </div>
+
+                <button type="submit" class="auth-button" id="forgotButton">
+                    Reset Password
+                </button>
+
+                <div class="auth-links">
+                    <a href="#" class="auth-link" onclick="showLogin()">Back to Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="main-app" id="mainApp">
+        <nav>
+            <div class="container">
+                <div class="nav-container">
+                    <a href="#" class="logo">TechVision</a>
+                    <ul class="nav-links" id="navLinks">
+                        <li><a href="#" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+                        <li><a href="#" class="nav-link" data-page="about">About Us</a></li>
+                        <li><a href="#" class="nav-link" data-page="services">Services</a></li>
+                        <li><a href="#" class="nav-link" data-page="portfolio">Portfolio</a></li>
+                        <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
+                        <li><a href="#" class="nav-link" data-page="blog">Blog</a></li>
+                        <li><a href="#" class="nav-link" data-page="adminPanel" id="adminLink"
+                                style="display: none;">Admin Panel</a></li>
+
+                        <li id="loginNav" style="display: none;">
+                            <button class="cta-button" onclick="showLoginForm()">Login / Sign Up</button>
+                        </li>
+
+                        <li class="user-info" style="display: none;">
+                            <div class="user-avatar" id="userAvatar"></div>
+                            <span id="userName"></span>
+                            <button class="logout-btn" onclick="logout()">Logout</button>
+                        </li>
+                    </ul>
+
+                    <button class="hamburger" onclick="toggleMenu()">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container">
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="dashboard" data-editable="true">
+                <div class="hero">
+                    <h1>Welcome to Your Dashboard</h1>
+                    <p>Access all your tools and manage your projects from here</p>
+                </div>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">📊</div>
+                        <h3>Analytics</h3>
+                        <p>View your website performance and user engagement metrics</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">⚙️</div>
+                        <h3>Settings</h3>
+                        <p>Manage your account settings and preferences</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📁</div>
+                        <h3>Projects</h3>
+                        <p>Access and manage all your active projects</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Us Page -->
+            <div class="page-content" id="about" data-editable="true">
+                <h2>About TechVision Solutions</h2>
+                <p>Founded in 2025, TechVision Solutions is a leading technology company specializing in cutting-edge
+                    digital solutions. We help businesses transform their operations through innovative technology
+                    implementations.</p>
+
+                <h3>Our Mission</h3>
+                <p>To empower businesses with technology solutions that drive growth, efficiency, and innovation. We
+                    believe in creating digital experiences that not only meet current needs but anticipate future
+                    challenges.</p>
+
+                <h3>Our Values</h3>
+                <p><strong>Innovation:</strong> We stay at the forefront of technological advancement</p>
+                <p><strong>Quality:</strong> We deliver excellence in every project</p>
+                <p><strong>Integrity:</strong> We build trust through transparent communication</p>
+                <p><strong>Collaboration:</strong> We work closely with our clients as partners</p>
+            </div>
+
+            <!-- Services Page -->
+            <div class="page-content" id="services" data-editable="true">
+                <h2>Our Services</h2>
+                <p>We offer comprehensive technology solutions tailored to your business needs.</p>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🌐</div>
+                        <h3>Web Development</h3>
+                        <p>Full-stack web development using React, Node.js, Python, and modern frameworks.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">📱</div>
+                        <h3>Mobile Development</h3>
+                        <p>Native iOS and Android apps, as well as cross-platform solutions.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">☁️</div>
+                        <h3>Cloud Solutions</h3>
+                        <p>AWS, Azure, and Google Cloud implementations and migration services.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🎨</div>
+                        <h3>UI/UX Design</h3>
+                        <p>User-centered design solutions that create engaging digital experiences.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Page -->
+            <div class="page-content" id="portfolio" data-editable="true">
+                <h2>Our Portfolio</h2>
+                <p>Explore some of our recent projects and success stories.</p>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🏪</div>
+                        <h3>E-commerce Platform</h3>
+                        <p>Built a scalable e-commerce solution handling 10,000+ daily transactions.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🏥</div>
+                        <h3>Healthcare System</h3>
+                        <p>Developed a comprehensive patient management system for medical clinics.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">🎓</div>
+                        <h3>Education Platform</h3>
+                        <p>Created an interactive learning management system for global students.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Page -->
+            <div class="page-content" id="contact" data-editable="true">
+                <h2>Get In Touch</h2>
+                <p>Ready to start your next project? Contact us today for a consultation.</p>
+
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="contactName">Full Name</label>
+                            <input type="text" id="contactName" name="name" required placeholder="Enter your full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactEmail">Email Address</label>
+                            <input type="email" id="contactEmail" name="email" required placeholder="Enter your email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactMessage">Message</label>
+                            <textarea id="contactMessage" name="message" rows="5" required
+                                placeholder="Tell us about your project..."></textarea>
+                        </div>
+
+                        <button type="submit" class="cta-button">Send Message</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Blog Page -->
+            <div class="page-content" id="blog" data-editable="true">
+                <h2>Latest Blog Posts</h2>
+                <p>Stay updated with the latest technology trends and insights.</p>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>The Future of Web Development</h3>
+                        <p>Exploring emerging technologies and trends shaping web development in 2024.</p>
+                        <p><small>Posted on March 15, 2024</small></p>
+                    </div>
+                    <div class="service-card">
+                        <h3>Cloud Migration Best Practices</h3>
+                        <p>A comprehensive guide to successfully migrating applications to the cloud.</p>
+                        <p><small>Posted on March 10, 2024</small></p>
+                    </div>
+                    <div class="service-card">
+                        <h3>Mobile App Security Tips</h3>
+                        <p>Essential security measures every mobile app developer should implement.</p>
+                        <p><small>Posted on March 5, 2024</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content" id="adminPanel" data-editable="true">
+                <h2>Admin Control Panel</h2>
+                <p>Welcome, Admin! You have full access to manage website content.</p>
+                <p>
+                    You can edit all page content by using the <strong>Content Editor</strong> from the navigation bar.
+                </p>
+                <p>
+                    <a href="admin-editor.html">🛠️ Open Content Editor</a>
+                </p>
+            </div>
+
+
+        </main>
+
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2025 TechVision Solutions. All rights reserved.</p>
+                <p>Email: info@techvision.com | Phone: +1 (555) 123-4567</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Analytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Real-Time Analytics</h1>
+            <p>Live user activity tracking powered by Google Analytics 4</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">👥</div>
+                    <div class="card-title">Active Users</div>
+                </div>
+                <div class="metric-big" id="totalUsers">0</div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <div class="status-text">Live tracking enabled</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🌍</div>
+                    <div class="card-title">Countries Online</div>
+                </div>
+                <div class="metric-big" id="totalCountries">0</div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <div class="status-text">Global reach tracking</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📊</div>
+                <div class="card-title">Users by Country</div>
+            </div>
+            <div class="table-container">
+                <div id="realtime" class="loading">Loading real-time data...</div>
+            </div>
+            <button class="refresh-btn" onclick="fetchRealtimeData()">Refresh Data</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🧭</div>
+                <div class="card-title">Users by Page</div>
+            </div>
+            <div class="table-container">
+                <div id="realtimePages" class="loading">Loading page-level data...</div>
+            </div>
+            <button class="refresh-btn" onclick="fetchRealtimePages()">Refresh Page Data</button>
+        </div>
+
+        <div class="last-updated">
+            Last updated: <span id="lastUpdated">Never</span>
+        </div>
+    </div>
+
+    <script>
+        const countryFlag = {
+            'India': '🇮🇳',
+        };
+
+        function getCountryFlag(country) {
+            return countryFlag[country] || '🌍';
+        }
+
+        function animateNumber(element, targetValue, duration = 1000) {
+            const startValue = parseInt(element.textContent) || 0;
+            const increment = (targetValue - startValue) / (duration / 16);
+            let currentValue = startValue;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if ((increment > 0 && currentValue >= targetValue) ||
+                    (increment < 0 && currentValue <= targetValue)) {
+                    currentValue = targetValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(currentValue);
+            }, 16);
+        }
+
+        function fetchRealtimeData() {
+            const container = document.getElementById('realtime');
+            container.innerHTML = '<div class="loading">Fetching latest data...</div>';
+            fetch('http://localhost:3000/realtime')
+                .then(response => response.json())
+                .then(data => {
+                    const totalUsersEl = document.getElementById('totalUsers');
+                    const totalCountriesEl = document.getElementById('totalCountries');
+                    const lastUpdatedEl = document.getElementById('lastUpdated');
+
+                    if (!data.rows || data.rows.length === 0) {
+                        container.innerHTML = '<div class="error">🚫 No active users detected right now</div>';
+                        animateNumber(totalUsersEl, 0);
+                        animateNumber(totalCountriesEl, 0);
+                        return;
+                    }
+
+                    let totalUsers = 0;
+                    data.rows.forEach(row => {
+                        totalUsers += parseInt(row.metricValues?.[0]?.value || 0);
+                    });
+                    animateNumber(totalUsersEl, totalUsers);
+                    animateNumber(totalCountriesEl, data.rows.length);
+
+                    let tableHTML = `
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Country</th>
+                                    <th>Active Users</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    data.rows
+                        .sort((a, b) => parseInt(b.metricValues?.[0]?.value || 0) - parseInt(a.metricValues?.[0]?.value || 0))
+                        .forEach(row => {
+                            const country = row.dimensionValues?.[0]?.value || 'Unknown';
+                            const users = row.metricValues?.[0]?.value || '0';
+                            const flag = getCountryFlag(country);
+                            tableHTML += `
+                                <tr>
+                                    <td><span class="country-flag">${flag}</span> ${country}</td>
+                                    <td class="users-count">${users}</td>
+                                </tr>
+                            `;
+                        });
+
+                    tableHTML += '</tbody></table>';
+                    container.innerHTML = tableHTML;
+                    lastUpdatedEl.textContent = new Date().toLocaleString();
+                })
+                .catch(error => {
+                    console.error('Error fetching realtime data:', error);
+                    container.innerHTML = '<div class="error">⚠️ Failed to connect to analytics server</div>';
+                });
+        }
+
+        function fetchRealtimePages() {
+            const container = document.getElementById('realtimePages');
+            container.innerHTML = '<div class="loading">Fetching latest page data...</div>';
+
+            fetch('http://localhost:3000/realtime-pages')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.rows || data.rows.length === 0) {
+                        container.innerHTML = '<div class="error">🚫 No active users on any page</div>';
+                        return;
+                    }
+
+                    let tableHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Page</th>
+                            <th>Active Users</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+                    data.rows
+                        .sort((a, b) => parseInt(b.metricValues?.[0]?.value || 0) - parseInt(a.metricValues?.[0]?.value || 0))
+                        .forEach(row => {
+                            const screenName = row.dimensionValues?.[0]?.value || 'Unknown Page';
+                            const users = row.metricValues?.[0]?.value || '0';
+
+                            // If GA sends "(not set)" replace with Homepage
+                            const displayName = screenName === '(not set)' ? 'Homepage' : screenName;
+
+                            tableHTML += `
+                        <tr>
+                            <td title="${screenName}">${displayName}</td>
+                            <td class="users-count">${users}</td>
+                        </tr>
+                    `;
+                        });
+
+                    tableHTML += '</tbody></table>';
+                    container.innerHTML = tableHTML;
+                })
+                .catch(error => {
+                    console.error('Error fetching realtime page data:', error);
+                    container.innerHTML = '<div class="error">⚠️ Failed to load page data</div>';
+                });
+        }
+
+        fetchRealtimeData();
+        fetchRealtimePages();
+        setInterval(fetchRealtimeData, 30000);
+        setInterval(fetchRealtimePages, 30000);
+    </script>
+</body>
+
+</html>

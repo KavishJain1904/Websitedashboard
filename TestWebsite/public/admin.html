@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login - TechVision</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo">👑 Admin Portal</div>
+      <div class="auth-title">Admin Login</div>
+      <div class="auth-subtitle">Authorized access only</div>
+
+      <div id="adminError" class="error-message hidden"></div>
+
+      <form id="adminLoginForm" autocomplete="off" novalidate>
+        <div class="form-group">
+          <label for="adminEmail">Admin Email</label>
+          <input
+            type="email"
+            id="adminEmail"
+            name="admin_user_email"
+            required
+            placeholder="Enter admin email"
+            autocomplete="off"
+          />
+        </div>
+        <div class="form-group">
+          <label for="adminPassword">Password</label>
+          <input
+            type="password"
+            id="adminPassword"
+            name="admin_user_password"
+            required
+            placeholder="Enter admin password"
+            autocomplete="new-password"
+          />
+        </div>
+        <button type="submit" class="auth-button">Admin Sign In</button>
+      </form>
+
+      <div class="auth-links">
+        <a href="index.html" class="auth-link">← Back to User Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
