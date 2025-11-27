@@ -1,14 +1,10 @@
-// routes/content.js
+
 const express = require('express');
-const PageContent = require('../models/pageContent'); // pageContent.js model
+const PageContent = require('../models/pageContent'); 
 const verifyToken = require('../middleware/verify');
 
 const router = express.Router();
 
-/**
- * Default content used to seed the database
- * and also as fallback when nothing exists yet.
- */
 const defaultContent = {
   dashboard: `<div class="hero">
     <h1>Welcome to Your Dashboard</h1>
@@ -144,11 +140,7 @@ const defaultContent = {
 </p>`
 };
 
-/**
- * Middleware: require a valid JWT AND admin user.
- */
 function requireAdmin(req, res, next) {
-  // reuse existing verifyToken middleware
   verifyToken(req, res, () => {
     if (!req.user || !req.user.isAdmin) {
       return res.status(403).json({ message: 'Admin access required' });
@@ -157,10 +149,6 @@ function requireAdmin(req, res, next) {
   });
 }
 
-/**
- * Helper: find existing section in DB or create
- * it with default content.
- */
 async function getOrCreateSection(sectionId) {
   let doc = await PageContent.findOne({ sectionId });
 
@@ -176,7 +164,6 @@ async function getOrCreateSection(sectionId) {
   return doc;
 }
 
-// PUBLIC: get content for a single section (used by main website)
 router.get('/content/:sectionId', async (req, res) => {
   try {
     const { sectionId } = req.params;
@@ -195,13 +182,11 @@ router.get('/content/:sectionId', async (req, res) => {
   }
 });
 
-// ADMIN: update content for a section
 router.put('/content/:sectionId', requireAdmin, async (req, res) => {
   try {
     const { sectionId } = req.params;
     const { html } = req.body;
 
-    // allow empty string but not undefined/null
     if (html === undefined) {
       return res.status(400).json({
         success: false,
@@ -235,7 +220,6 @@ router.put('/content/:sectionId', requireAdmin, async (req, res) => {
   }
 });
 
-// ADMIN: get all sections (for future admin UI if needed)
 router.get('/content', requireAdmin, async (req, res) => {
   try {
     const docs = await PageContent.find().sort('sectionId');

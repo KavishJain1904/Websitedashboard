@@ -8,18 +8,14 @@ const verifyToken = require('../middleware/verify');
 
 const router = express.Router();
 
-// Helper function for sending password reset email
 async function sendPasswordResetEmail(user, resetToken) {
-  // For testing, use Ethereal (https://ethereal.email/)
-  // For production, use SendGrid, Mailgun, or AWS SES
-  
   let transporter = nodemailer.createTransport({
     host: 'smtp.ethereal.email',
     port: 587,
     secure: false,
     auth: {
-      user: process.env.ETHEREAL_USER, // Add to your .env file
-      pass: process.env.ETHEREAL_PASS  // Add to your .env file
+      user: process.env.ETHEREAL_USER,
+      pass: process.env.ETHEREAL_PASS  
     }
   });
 
@@ -43,7 +39,6 @@ async function sendPasswordResetEmail(user, resetToken) {
   console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 }
 
-// SIGNUP route
 router.post('/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -67,7 +62,6 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// LOGIN route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -102,7 +96,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD route
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
 
@@ -110,26 +103,20 @@ router.post('/forgot-password', async (req, res) => {
     const user = await User.findOne({ email });
     
     if (!user) {
-      // Send success message even if user not found (security best practice)
       return res.json({ 
         message: 'If an account with that email exists, a reset link has been sent.' 
       });
     }
 
-    // Generate random token
     const resetToken = crypto.randomBytes(32).toString('hex');
-
-    // Hash the token and save it to user model
     user.passwordResetToken = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
 
-    // Set expiration time (10 minutes)
     user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    // Send email with UN-HASHED token
     try {
       await sendPasswordResetEmail(user, resetToken);
       res.json({ 
@@ -149,18 +136,15 @@ router.post('/forgot-password', async (req, res) => {
   }
 });
 
-// RESET PASSWORD route
 router.post('/reset-password', async (req, res) => {
   const { token, password } = req.body;
 
-  // Hash the incoming token to match database
   const hashedToken = crypto
     .createHash('sha256')
     .update(token)
     .digest('hex');
 
   try {
-    // Find user by hashed token and check expiration
     const user = await User.findOne({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() }
@@ -172,7 +156,6 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    // Update password
     user.password = await bcrypt.hash(password, 10);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
@@ -184,7 +167,6 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// PROTECTED route (example)
 router.get('/protected', verifyToken, (req, res) => {
   res.json({ message: 'This is protected data', user: req.user });
 });

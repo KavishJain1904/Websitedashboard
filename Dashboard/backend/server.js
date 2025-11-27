@@ -18,7 +18,6 @@ const auth = new google.auth.GoogleAuth({
 
 const propertyId = '495329912';
 
-// ========== REALTIME DATA BY COUNTRY ==========
 app.get('/realtime', async (req, res) => {
     try {
         const authClient = await auth.getClient();
@@ -60,8 +59,6 @@ app.get('/realtime-pages', async (req, res) => {
     }
 });
 
-
-// ========== HISTORICAL PAGE VIEWS ==========
 app.get('/page-views', async (req, res) => {
     try {
         const authClient = await auth.getClient();
@@ -93,7 +90,6 @@ app.get('/page-views', async (req, res) => {
     }
 });
 
-// ========== DASHBOARD DATA (AGGREGATED) ==========
 app.get('/dashboard-data', async (req, res) => {
     try {
         const authClient = await auth.getClient();
@@ -164,7 +160,6 @@ app.get('/dashboard-data', async (req, res) => {
     }
 });
 
-// ========== PAGE PERFORMANCE ==========
 app.get('/page-performance', async (req, res) => {
     try {
         const authClient = await auth.getClient();

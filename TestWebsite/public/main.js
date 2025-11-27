@@ -1,4 +1,4 @@
-// main.js
+
 document.addEventListener('DOMContentLoaded', () => {
   const authContainer = document.getElementById('authContainer');
   const mainApp = document.getElementById('mainApp');
@@ -21,9 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentUser = null;
   let jwt = null;
 
-  // ------------------------
-  //  UI helpers
-  // ------------------------
   function showError(message) {
     if (!errorDiv) {
       alert(message);
@@ -124,15 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const page = link.dataset.page;
         showPage(page);
-        // close mobile nav when a link is clicked
         if (navLinksWrap) navLinksWrap.classList.remove('active');
       });
     });
   }
 
-  // ------------------------
-  //  Content loading
-  // ------------------------
   async function loadSection(sectionId) {
     try {
       const res = await fetch(`${API_BASE}/content/${encodeURIComponent(sectionId)}`);
@@ -149,9 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ------------------------
-  //  Auth API helpers
-  // ------------------------
+
   async function doLogin(email, password) {
     const res = await fetch(`${API_BASE}/login`, {
       method: 'POST',
@@ -166,9 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return res.json();
   }
 
-  // ------------------------
-  //  LOGIN
-  // ------------------------
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -195,9 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ------------------------
-  //  SIGNUP
-  // ------------------------
   if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -231,9 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ------------------------
-  //  FORGOT PASSWORD
-  // ------------------------
   if (forgotForm) {
     forgotForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -258,12 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ------------------------
-  //  CONTACT FORM
-  //  (This is the important part for saving to MongoDB)
-  // ------------------------
   document.addEventListener('submit', async (e) => {
-    if (e.target.id !== 'contactForm') return;  // only handle contact form
+    if (e.target.id !== 'contactForm') return;  
 
     e.preventDefault();
 
@@ -299,9 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ------------------------
-  //  AUTH UI helpers exposed to HTML
-  // ------------------------
   function showSignup() {
     if (!loginForm || !signupForm || !forgotForm) return;
     loginForm.classList.add('hidden');
@@ -346,22 +321,14 @@ document.addEventListener('DOMContentLoaded', () => {
     showPage('dashboard');
   };
 
-  // ------------------------
-  //  MOBILE MENU TOGGLE (hamburger)
-  //  Matches .nav-links.active in CSS
-  // ------------------------
   window.toggleMenu = function () {
     if (!navLinksWrap) return;
     navLinksWrap.classList.toggle('active');
   };
 
-  // ------------------------
-  //  INIT
-  // ------------------------
   restoreAuth();
   attachNavHandlers();
 
-  // If user restored -> show dashboard, else default to guest view
   if (mainApp && mainApp.classList.contains('active')) {
     showPage('dashboard');
   } else {

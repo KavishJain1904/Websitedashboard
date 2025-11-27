@@ -1,4 +1,4 @@
-// public/reset-password.js
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('resetPasswordForm');
   const errorDiv = document.getElementById('errorMessage');
@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmPassword = document.getElementById('confirmNewPassword').value;
     const submitButton = form.querySelector('button');
 
-    // Get the token from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 

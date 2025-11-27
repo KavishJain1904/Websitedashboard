@@ -1,4 +1,4 @@
-// server.js
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -13,7 +13,6 @@ const User = require('./models/user');
 
 const app = express();
 
-// CORS configuration
 app.use(cors({
   origin: ['http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -22,15 +21,12 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static files from public folder
 app.use(express.static(path.join(__dirname, '.', 'public')));
 
-// API routes
 app.use('/api', authRoutes);
 app.use('/api', contactRoutes);
 app.use('/api', contentRoutes);
 
-// MongoDB connection + ADMIN seeding
 mongoose.connect(process.env.MONGO_URI)
   .then(async () => {
     console.log('✓ MongoDB connected');
@@ -45,7 +41,6 @@ mongoose.connect(process.env.MONGO_URI)
         let adminUser = await User.findOne({ email: adminEmail });
 
         if (!adminUser) {
-          // create new admin user
           const hashed = await bcrypt.hash(adminPassword, 10);
           adminUser = await User.create({
             name: 'Admin',
@@ -55,7 +50,6 @@ mongoose.connect(process.env.MONGO_URI)
           });
           console.log(`✓ Admin user created from .env: ${adminEmail}`);
         } else {
-          // ensure isAdmin flag is true
           if (!adminUser.isAdmin) {
             adminUser.isAdmin = true;
             await adminUser.save();
